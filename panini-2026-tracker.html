@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panini 2026 Tracker – Manquants &amp; Doubles</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg2: #1e293b;
+      --bg3: #0f172a;
+      --border: #334155;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --gold: #f59e0b;
+      --gold-dark: #d97706;
+      --red: #f43f5e;
+      --red-bg: rgba(244,63,94,0.10);
+      --red-border: rgba(244,63,94,0.25);
+      --green: #10b981;
+      --green-bg: rgba(16,185,129,0.10);
+      --green-border: rgba(16,185,129,0.25);
+      --purple: #a78bfa;
+      --purple-bg: rgba(167,139,250,0.12);
+      --radius: 10px;
+      --radius-lg: 14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; -webkit-font-smoothing: antialiased; }
+    button { cursor: pointer; font-family: inherit; }
+    input, textarea { font-family: inherit; }
+
+    /* ── HEADER ── */
+    .header { background: #020617; border-bottom: 1px solid var(--border); padding: 12px 20px; position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-icon { background: var(--gold); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: #020617; flex-shrink: 0; }
+    .logo-title { font-size: 17px; font-weight: 900; letter-spacing: -0.5px; }
+    .logo-title span { color: var(--gold); }
+    .logo-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .nav-tabs { display: flex; gap: 4px; background: #020617; padding: 3px; border-radius: 9px; border: 1px solid var(--border); }
+    .nav-tab { padding: 6px 14px; border-radius: 7px; font-weight: 700; font-size: 12px; border: none; background: transparent; color: var(--muted); transition: all 0.18s; }
+    .nav-tab.active { background: var(--gold); color: #020617; }
+    .nav-tab:hover:not(.active) { background: var(--bg2); color: var(--text); }
+    .header-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 11px; border: 1px solid var(--border); background: var(--bg2); color: var(--muted); transition: all 0.15s; }
+    .btn:hover { background: #334155; color: var(--text); }
+    .btn-gold { background: var(--gold); color: #020617; border-color: var(--gold-dark); }
+    .btn-gold:hover { background: var(--gold-dark); }
+    .btn-danger { color: #f87171; }
+    .btn-danger:hover { background: rgba(248,113,113,0.1); color: #f87171; }
+
+    /* ── STATS BAR ── */
+    .stats-bar { background: rgba(2,6,23,0.5); border-bottom: 1px solid var(--border); padding: 12px 20px; }
+    .stats-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
+    .stat-icon { font-size: 18px; }
+    .stat-num { font-size: 20px; font-weight: 900; }
+    .stat-label { font-size: 10px; color: var(--muted); margin-top: 1px; }
+
+    /* ── MAIN ── */
+    .main { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+    /* ── TOAST ── */
+    #toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%) translateY(-80px); z-index: 1000; background: var(--gold); color: #020617; font-weight: 700; font-size: 13px; padding: 10px 20px; border-radius: 40px; box-shadow: 0 4px 24px rgba(245,158,11,0.3); transition: transform 0.3s; pointer-events: none; white-space: nowrap; }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── POSTER TAB ── */
+    .poster-controls { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 18px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; }
+    .poster-info { display: flex; gap: 10px; align-items: flex-start; }
+    .poster-info-icon { color: var(--gold); font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .poster-info h4 { font-size: 13px; font-weight: 700; }
+    .poster-info p { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .mode-switcher { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 3px; gap: 2px; }
+    .mode-btn { padding: 6px 11px; border-radius: 7px; font-size: 11px; font-weight: 700; border: none; background: transparent; color: var(--muted); transition: all 0.15s; white-space: nowrap; }
+    .mode-btn.active-missing { background: rgba(244,63,94,0.15); color: #f43f5e; border: 1px solid var(--red-border); }
+    .mode-btn.active-duplicates { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid var(--green-border); }
+    .mode-btn.active-both { background: rgba(245,158,11,0.15); color: var(--gold); border: 1px solid rgba(245,158,11,0.3); }
+    .mode-btn:hover:not(.active-missing):not(.active-duplicates):not(.active-both) { background: var(--bg2); color: var(--text); }
+
+    /* ── POSTER BOARD ── */
+    .poster-board { background: linear-gradient(160deg, #0a1535, #04091c); border: 3px solid var(--gold); border-radius: 18px; padding: 20px 22px; color: white; position: relative; overflow: hidden; }
+    .poster-board.dup { border-color: var(--green); background: linear-gradient(160deg, #051c14, #010806); }
+    .poster-board.both { border-color: var(--gold); background: linear-gradient(160deg, #11112b, #04040d); }
+    .poster-header { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(245,158,11,0.25); padding-bottom: 14px; margin-bottom: 18px; }
+    .poster-title-block { display: flex; align-items: center; gap: 14px; }
+    .poster-trophy { width: 52px; height: 52px; background: radial-gradient(circle, #fbbf24, #f59e0b); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .poster-board.dup .poster-trophy { background: radial-gradient(circle, #6ee7b7, #10b981); }
+    .poster-main-title { font-size: clamp(16px, 3vw, 24px); font-weight: 900; letter-spacing: -0.5px; text-transform: uppercase; }
+    .poster-subtitle { color: var(--gold); font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
+    .poster-board.dup .poster-subtitle { color: var(--green); }
+    .poster-badge { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.4); border: 1px solid rgba(245,158,11,0.35); border-radius: 12px; padding: 8px 14px; }
+    .poster-badge-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .poster-badge-year { color: var(--gold); font-size: 16px; font-weight: 900; letter-spacing: 1px; }
+    .poster-divider { width: 1px; height: 32px; background: var(--border); }
+
+    .poster-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 640px) { .poster-grid { grid-template-columns: 1fr; } }
+
+    .poster-table-wrap { background: rgba(5,12,37,0.85); border: 2px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .poster-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .poster-table thead tr { background: #0d1b46; }
+    .poster-table th { padding: 9px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); font-weight: 900; }
+    .poster-table th:first-child { text-align: left; }
+    .poster-table th:last-child { text-align: center; }
+    .poster-table tbody tr { border-top: 1px solid rgba(51,65,85,0.4); transition: background 0.15s; cursor: pointer; }
+    .poster-table tbody tr:hover { background: rgba(245,158,11,0.08); }
+    .poster-table td { padding: 8px 10px; vertical-align: middle; }
+    .country-cell { display: flex; align-items: center; gap: 7px; white-space: nowrap; }
+    .country-flag { width: 22px; height: auto; border-radius: 3px; border: 1px solid rgba(0,0,0,0.2); flex-shrink: 0; }
+    .country-code { font-weight: 900; font-size: 11px; color: #f1f5f9; letter-spacing: 0.5px; }
+    .sticker-pill { background: rgba(25,21,51,0.9); border: 1px solid rgba(162,28,175,0.3); color: #f9a8d4; padding: 4px 8px; border-radius: 7px; font-family: monospace; font-weight: 700; font-size: 11px; word-break: break-word; text-align: center; display: block; }
+    .dup-pill { background: rgba(18,35,28,0.9); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; padding: 4px 8px; border-radius: 7px; font-family: monospace; font-weight: 700; font-size: 11px; word-break: break-word; text-align: center; display: block; }
+    .complete-text { color: #475569; font-style: italic; font-size: 11px; text-align: center; display: block; }
+    .row-label { font-size: 9px; font-weight: 900; text-transform: uppercase; flex-shrink: 0; width: 14px; }
+    .row-label.m { color: #f43f5e; }
+    .row-label.d { color: #10b981; }
+    .both-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+    .both-row:last-child { margin-bottom: 0; }
+
+    .poster-footer { border-top: 1px solid rgba(245,158,11,0.2); padding-top: 14px; margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; font-size: 10px; color: var(--muted); }
+    .poster-footer-left { display: flex; align-items: center; gap: 8px; }
+    .poster-footer-left span { font-weight: 900; text-transform: uppercase; font-size: 9px; color: var(--gold); letter-spacing: 1px; }
+
+    /* ── DASHBOARD TAB ── */
+    .dash-search-bar { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 16px; margin-bottom: 18px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    .search-wrap { position: relative; flex: 1; min-width: 200px; }
+    .search-wrap input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px 7px 34px; color: var(--text); font-size: 13px; outline: none; transition: border-color 0.15s; }
+    .search-wrap input:focus { border-color: var(--gold); }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 15px; pointer-events: none; }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+    .country-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.15s; }
+    .country-card.has-data { border-color: #334155; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+    .country-card-header { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 9px; }
+    .card-flag { width: 26px; height: auto; border-radius: 3px; flex-shrink: 0; }
+    .card-name { font-weight: 700; font-size: 13px; line-height: 1.2; }
+    .card-code { font-size: 10px; color: var(--muted); font-weight: 800; text-transform: uppercase; }
+    .card-stickers { min-height: 80px; }
+    .sticker-section { margin-bottom: 8px; }
+    .sticker-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 5px; display: block; }
+    .sticker-section-label.missing { color: var(--red); }
+    .sticker-section-label.dup { color: var(--green); }
+    .sticker-chips { display: flex; flex-wrap: wrap; gap: 3px; }
+    .chip { font-family: monospace; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 4px; }
+    .chip.miss { background: var(--red-bg); color: #f9a8d4; border: 1px solid var(--red-border); }
+    .chip.dup { background: var(--green-bg); color: #6ee7b7; border: 1px solid var(--green-border); }
+    .empty-text { font-size: 11px; color: #475569; font-style: italic; }
+    .card-footer { border-top: 1px solid var(--border); padding-top: 10px; }
+    .btn-edit { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--muted); border-radius: 7px; padding: 6px 10px; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.15s; }
+    .btn-edit:hover { background: var(--bg2); color: var(--text); border-color: var(--gold); }
+    .btn-edit svg { color: var(--gold); }
+
+    /* ── MODAL ── */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #020617; border: 2px solid var(--gold); border-radius: 18px; max-width: 480px; width: 100%; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.7); position: relative; margin: auto; }
+    .modal-header { background: var(--gold); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; }
+    .modal-header-info { display: flex; align-items: center; gap: 10px; }
+    .modal-header h3 { font-size: 17px; font-weight: 900; color: #020617; }
+    .modal-header p { font-size: 10px; font-weight: 700; color: rgba(2,6,23,0.6); text-transform: uppercase; letter-spacing: 1px; }
+    .modal-close { background: rgba(2,6,23,0.2); border: none; color: #020617; font-size: 16px; width: 28px; height: 28px; border-radius: 50%; font-weight: 900; cursor: pointer; }
+    .modal-body { padding: 18px; max-height: 75vh; overflow-y: auto; }
+    .modal-footer { border-top: 1px solid var(--border); padding: 12px 18px; background: rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+    .btn-cancel { background: transparent; border: none; color: var(--muted); font-weight: 700; font-size: 12px; padding: 8px 12px; border-radius: 7px; }
+    .btn-cancel:hover { color: var(--text); }
+    .btn-confirm { background: var(--gold); color: #020617; border: none; font-weight: 900; font-size: 12px; padding: 8px 18px; border-radius: 8px; display: flex; align-items: center; gap: 5px; }
+    .btn-confirm:hover { background: var(--gold-dark); }
+    .modal-danger { border-color: var(--red); }
+    .modal-danger .modal-header { background: rgba(244,63,94,0.15); }
+    .modal-danger .modal-header h3 { color: #f87171; }
+    .modal-danger .modal-header p { color: var(--muted); }
+    .btn-confirm-danger { background: #dc2626; color: white; border: none; font-weight: 900; font-size: 12px; padding: 8px 18px; border-radius: 8px; }
+    .btn-confirm-danger:hover { background: #b91c1c; }
+    .modal-green { border-color: var(--green); }
+    .modal-green .modal-header { background: rgba(16,185,129,0.15); }
+    .modal-green .modal-header h3 { color: #6ee7b7; }
+
+    /* ── SLOT LEGEND ── */
+    .slot-legend { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 14px; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; text-transform: uppercase; font-weight: 700; color: var(--muted); }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+
+    /* ── SLOT GRID ── */
+    .slots-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .slot-btn { aspect-ratio: 3/4; border-radius: 8px; border: 2px solid; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; position: relative; transition: all 0.15s; user-select: none; -webkit-user-select: none; }
+    .slot-btn.missing { border-color: rgba(244,63,94,0.5); background: rgba(244,63,94,0.1); color: #f43f5e; }
+    .slot-btn.missing:hover { background: rgba(244,63,94,0.2); }
+    .slot-btn.owned { border-color: #475569; background: #334155; color: white; }
+    .slot-btn.owned:hover { background: #475569; }
+    .slot-btn.duplicate { border-color: #10b981; background: #065f46; color: white; box-shadow: 0 0 10px rgba(16,185,129,0.25); }
+    .slot-btn.duplicate:hover { background: #047857; }
+    .slot-badge { position: absolute; top: -8px; right: -8px; background: var(--gold); color: #020617; font-size: 9px; font-weight: 900; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #020617; }
+    .slot-hint { font-size: 10px; color: var(--muted); text-align: center; margin-top: 10px; font-style: italic; }
+    .slot-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 14px; }
+    .slot-act-btn { background: #020617; border: 1px solid var(--border); color: var(--muted); border-radius: 7px; padding: 6px 12px; font-size: 10px; font-weight: 700; }
+    .slot-act-btn:hover { background: var(--bg2); color: var(--text); }
+
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(245,158,11,0.3); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+
+    /* ── BULK MODAL ── */
+    .upload-zone { border: 2px dashed rgba(245,158,11,0.35); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.15s; display: block; }
+    .upload-zone:hover { border-color: var(--gold); background: rgba(245,158,11,0.05); }
+    .upload-zone input { display: none; }
+    .upload-zone p { font-size: 12px; font-weight: 700; color: var(--text); margin-top: 6px; }
+    .upload-zone small { font-size: 10px; color: var(--muted); }
+    .bulk-type-tabs { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 3px; margin-bottom: 10px; }
+    .bulk-tab { flex: 1; padding: 6px; border-radius: 7px; font-size: 11px; font-weight: 700; border: none; background: transparent; color: var(--muted); transition: all 0.15s; text-align: center; }
+    .bulk-tab.miss-active { background: var(--red-bg); color: #f43f5e; border: 1px solid var(--red-border); }
+    .bulk-tab.owned-active { background: rgba(56,189,248,0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); }
+    .bulk-tab.dup-active { background: var(--green-bg); color: #10b981; border: 1px solid var(--green-border); }
+    .json-detected { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); color: var(--gold); border-radius: 8px; padding: 8px 12px; font-size: 11px; font-weight: 700; text-align: center; }
+    .error-box { background: var(--red-bg); border: 1px solid var(--red-border); color: #f87171; border-radius: 8px; padding: 10px 12px; font-size: 11px; }
+    .bulk-textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-size: 11px; font-family: monospace; resize: vertical; min-height: 100px; outline: none; }
+    .bulk-textarea:focus { border-color: var(--gold); }
+    .divider { display: flex; align-items: center; gap: 10px; margin: 12px 0; }
+    .divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+    .divider span { font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+
+    /* ── SHARE MODAL ── */
+    .share-option { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; text-align: left; transition: all 0.15s; }
+    .share-option:hover { background: var(--bg2); }
+    .share-option-title { font-size: 12px; font-weight: 700; color: var(--text); }
+    .share-option-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+    /* ── EXPORT MODAL ── */
+    .export-option { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px; text-align: left; transition: all 0.15s; }
+    .export-option:hover { background: var(--bg2); }
+    .export-option h4 { font-size: 13px; font-weight: 700; color: var(--text); }
+    .export-option p { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    /* ── FOOTER ── */
+    .footer { background: rgba(2,6,23,0.7); border-top: 1px solid var(--border); padding: 20px; text-align: center; font-size: 11px; color: var(--muted); margin-top: 40px; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    .tab-content { animation: fadein 0.2s ease; }
+
+    @media (max-width: 560px) {
+      .stats-inner { grid-template-columns: 1fr 1fr; }
+      .stats-inner .stat-card:last-child { grid-column: 1 / -1; }
+      .header-inner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="toast">✨ Notification</div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🏆</div>
+      <div>
+        <div class="logo-title">PANINI <span>2026</span> TRACKER</div>
+        <div class="logo-sub">Manquants &amp; Doubles de la Coupe du Monde</div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="tab-poster" onclick="switchTab('poster')">Fiche Image</button>
+      <button class="nav-tab" id="tab-dashboard" onclick="switchTab('dashboard')">Éditeur Rapide</button>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="openModal('bulkModal')">📤 Import</button>
+      <button class="btn" onclick="openModal('exportModal')">💾 Exporter</button>
+      <button class="btn" onclick="openModal('shareModal')">✨ Partager</button>
+      <button class="btn btn-danger" onclick="openModal('resetModal')">🗑</button>
+    </div>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-card">
+      <span class="stat-icon">🔴</span>
+      <div>
+        <div class="stat-num" id="stat-missing">0</div>
+        <div class="stat-label">Stickers manquants</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">🟢</span>
+      <div>
+        <div class="stat-num" id="stat-dup">0</div>
+        <div class="stat-label">Stickers en double</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">🔄</span>
+      <div>
+        <div class="stat-num" id="stat-status">—</div>
+        <div class="stat-label">État des échanges</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="main">
+  <div id="tab-content-poster" class="tab-content">
+    <div class="poster-controls">
+      <div class="poster-info">
+        <div class="poster-info-icon">⚙️</div>
+        <div>
+          <h4>Personnalisez votre fiche avant de l'exporter</h4>
+          <p>Choisissez ce que vous souhaitez afficher sur l'image finale.</p>
+        </div>
+      </div>
+      <div class="mode-switcher">
+        <button class="mode-btn active-missing" id="mode-missing" onclick="setPosterMode('missing')">🔴 Manquants</button>
+        <button class="mode-btn" id="mode-duplicates" onclick="setPosterMode('duplicates')">🟢 Doubles</button>
+        <button class="mode-btn" id="mode-both" onclick="setPosterMode('both')">📊 Combiné</button>
+      </div>
+    </div>
+    <div id="posterBoard"></div>
+  </div>
+
+  <div id="tab-content-dashboard" class="tab-content" style="display:none">
+    <div class="dash-search-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Rechercher un pays..." oninput="renderDashboard()">
+      </div>
+      <button class="btn" onclick="document.getElementById('searchInput').value='';renderDashboard()">Effacer</button>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+</main>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header" id="editModalHeader">
+      <div class="modal-header-info">
+        <img id="editFlag" src="" width="36" style="border-radius:5px;border:1px solid rgba(0,0,0,0.2)" alt="">
+        <div>
+          <h3 id="editCountryName">Pays</h3>
+          <p id="editCountryCode">CODE</p>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="slot-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:rgba(244,63,94,0.2);border:1px solid rgba(244,63,94,0.5)"></div>Manquant</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#334155;border:1px solid #475569"></div>Possédé</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#065f46;border:1px solid #10b981"></div>Double</div>
+      </div>
+      <div class="slots-grid" id="slotsGrid"></div>
+      <p class="slot-hint">👆 Clic gauche : ajouter · Clic droit / appui long : retirer</p>
+      <div class="slot-actions">
+        <button class="slot-act-btn" onclick="setAllSlots(0)">🔴 Tout Manquant</button>
+        <button class="slot-act-btn" onclick="setAllSlots(1)">✅ Tout Possédé</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('editModal')">Annuler</button>
+      <button class="btn-confirm" onclick="saveCountry()">✔ Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="bulkModal">
+  <div class="modal">
+    <div class="modal-header" style="background:rgba(245,158,11,0.1)">
+      <div class="modal-header-info">
+        <h3 style="color:var(--gold)">📤 Importation de Stickers</h3>
+      </div>
+      <button class="modal-close" style="background:rgba(245,158,11,0.15);color:var(--gold)" onclick="closeModal('bulkModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Importez votre fichier de sauvegarde <b>JSON</b> ou utilisez l'importation manuelle par texte.</p>
+      <label class="upload-zone">
+        <div style="font-size:28px">📂</div>
+        <p>Charger votre fichier .json</p>
+        <small>Extrait vos manquants et vos doubles automatiquement</small>
+        <input type="file" accept=".json" onchange="handleFileUpload(event)">
+      </label>
+      <div class="divider"><hr><span>Ou importer du texte brut</span><hr></div>
+      <div id="bulkTypeSwitcher" class="bulk-type-tabs">
+        <button class="bulk-tab miss-active" id="btab-missing" onclick="setBulkType('missing')">🔴 Manquants</button>
+        <button class="bulk-tab" id="btab-owned" onclick="setBulkType('owned')">✅ Possédés</button>
+        <button class="bulk-tab" id="btab-duplicates" onclick="setBulkType('duplicates')">🟢 Doubles</button>
+      </div>
+      <div id="jsonDetected" class="json-detected" style="display:none">✔ Format JSON détecté</div>
+      <div id="bulkError" class="error-box" style="display:none"></div>
+      <textarea id="bulkTextarea" class="bulk-textarea" rows="4" placeholder="Ex: FRA: 1, 2, 3&#10;ESP: 5, 7&#10;&#10;Ou collez votre JSON ici." oninput="onBulkTextInput()"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('bulkModal')">Annuler</button>
+      <button class="btn-confirm" onclick="handleBulkImport()">Lancer l'importation</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="shareModal">
+  <div class="modal">
+    <div class="modal-header" style="background:rgba(245,158,11,0.1)">
+      <div class="modal-header-info"><h3 style="color:var(--gold)">✨ Partager mes listes</h3></div>
+      <button class="modal-close" style="background:rgba(245,158,11,0.15);color:var(--gold)" onclick="closeModal('shareModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <button class="share-option" onclick="copyFormattedText('missing')">
+        <div><div class="share-option-title">🔴 Uniquement mes Manquants</div><div class="share-option-sub">Ce que vous recherchez.</div></div>
+        <span style="font-size:16px">📋</span>
+      </button>
+      <button class="share-option" onclick="copyFormattedText('duplicates')">
+        <div><div class="share-option-title">🟢 Uniquement mes Doubles</div><div class="share-option-sub">Vos vignettes disponibles à l'échange.</div></div>
+        <span style="font-size:16px">📋</span>
+      </button>
+      <button class="share-option" onclick="copyFormattedText('all')" style="border-style:dashed;border-color:rgba(245,158,11,0.3)">
+        <div><div class="share-option-title" style="color:var(--gold)">📊 Liste Combinée</div><div class="share-option-sub">Le package complet pour négocier.</div></div>
+        <span style="font-size:16px">📋</span>
+      </button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('shareModal')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="exportModal">
+  <div class="modal modal-green">
+    <div class="modal-header" style="background:rgba(16,185,129,0.1)">
+      <div class="modal-header-info"><h3 style="color:#6ee7b7">💾 Options de Sauvegarde</h3></div>
+      <button class="modal-close" style="background:rgba(16,185,129,0.15);color:#6ee7b7" onclick="closeModal('exportModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <button class="export-option" onclick="exportJSON()">
+        <div><h4>Sauvegarder les données (.json)</h4><p>Fichier de sauvegarde réimportable à tout moment.</p></div>
+        <span style="font-size:24px">💾</span>
+      </button>
+      <button class="export-option" id="btnExportImg" onclick="exportImage()">
+        <div><h4>Générer une Image (.png)</h4><p>Belle image de votre affiche pour les réseaux sociaux.</p></div>
+        <span id="exportImgIcon" style="font-size:24px">🖼</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="resetModal">
+  <div class="modal modal-danger">
+    <div class="modal-header">
+      <div class="modal-header-info"><h3>⚠️ Réinitialisation</h3></div>
+      <button class="modal-close" onclick="closeModal('resetModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Êtes-vous sûr de vouloir tout réinitialiser ?</p>
+      <div class="error-box">⚠️ Cette action est irréversible et supprimera tous vos stickers manquants et en double.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('resetModal')">Annuler</button>
+      <button class="btn-confirm-danger" onclick="confirmReset()">Confirmer l'effacement</button>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <div>Panini Coupe du Monde 2026 – Tracker Indépendant</div>
+  <div style="margin-top:4px;font-size:10px">Cet outil n'est pas affilié à Panini S.p.A. ni à la FIFA.</div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════
+const COUNTRIES_LIST_1 = [
+  { code:'MEX', name:'Mexique', iso2:'mx' },
+  { code:'RSA', name:'Afrique du Sud', iso2:'za' },
+  { code:'KOR', name:'Corée du Sud', iso2:'kr' },
+  { code:'CZE', name:'Rép. Tchèque', iso2:'cz' },
+  { code:'CAN', name:'Canada', iso2:'ca' },
+  { code:'BIH', name:'Bosnie', iso2:'ba' },
+  { code:'QAT', name:'Qatar', iso2:'qa' },
+  { code:'SUI', name:'Suisse', iso2:'ch' },
+  { code:'BRA', name:'Brésil', iso2:'br' },
+  { code:'MAR', name:'Maroc', iso2:'ma' },
+  { code:'HAI', name:'Haïti', iso2:'ht' },
+  { code:'SCO', name:'Écosse', iso2:'gb-sct' },
+  { code:'USA', name:'États-Unis', iso2:'us' },
+  { code:'PAR', name:'Paraguay', iso2:'py' },
+  { code:'AUS', name:'Australie', iso2:'au' },
+  { code:'TUR', name:'Turquie', iso2:'tr' },
+  { code:'GER', name:'Allemagne', iso2:'de' },
+  { code:'CUW', name:'Curaçao', iso2:'cw' },
+  { code:'CIV', name:"Côte d'Ivoire", iso2:'ci' },
+  { code:'ECU', name:'Équateur', iso2:'ec' },
+  { code:'NED', name:'Pays-Bas', iso2:'nl' },
+  { code:'JPN', name:'Japon', iso2:'jp' },
+  { code:'SWE', name:'Suède', iso2:'se' },
+  { code:'TUN', name:'Tunisie', iso2:'tn' }
+];
+
+const COUNTRIES_LIST_2 = [
+  { code:'BEL', name:'Belgique', iso2:'be' },
+  { code:'EGY', name:'Égypte', iso2:'eg' },
+  { code:'IRN', name:'Iran', iso2:'ir' },
+  { code:'NZL', name:'Nouvelle-Zélande', iso2:'nz' },
+  { code:'ESP', name:'Espagne', iso2:'es' },
+  { code:'CPV', name:'Cap-Vert', iso2:'cv' },
+  { code:'KSA', name:'Arabie saoudite', iso2:'sa' },
+  { code:'URU', name:'Uruguay', iso2:'uy' },
+  { code:'FRA', name:'France', iso2:'fr' },
+  { code:'SEN', name:'Sénégal', iso2:'sn' },
+  { code:'IRQ', name:'Irak', iso2:'iq' },
+  { code:'NOR', name:'Norvège', iso2:'no' },
+  { code:'ARG', name:'Argentine', iso2:'ar' },
+  { code:'ALG', name:'Algérie', iso2:'dz' },
+  { code:'AUT', name:'Autriche', iso2:'at' },
+  { code:'JOR', name:'Jordanie', iso2:'jo' },
+  { code:'POR', name:'Portugal', iso2:'pt' },
+  { code:'COD', name:'RDC', iso2:'cd' },
+  { code:'UZB', name:'Ouzbékistan', iso2:'uz' },
+  { code:'COL', name:'Colombie', iso2:'co' },
+  { code:'ENG', name:'Angleterre', iso2:'gb-eng' },
+  { code:'CRO', name:'Croatie', iso2:'hr' },
+  { code:'GHA', name:'Ghana', iso2:'gh' },
+  { code:'PAN', name:'Panama', iso2:'pa' }
+];
+
+const ALL_COUNTRIES = [...COUNTRIES_LIST_1, ...COUNTRIES_LIST_2];
+const STICKERS_N = 20;
+
+// ═══════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════
+let stickers = {};
+let posterMode = 'missing';
+let editingCountry = null;
+let tempSlots = [];
+let bulkImportType = 'missing';
+
+function initStickers() {
+  const saved = localStorage.getItem('panini_2026_missing_stickers');
+  const defaultMissing = Array.from({length: STICKERS_N}, (_, i) => i + 1).join(', ');
+  ALL_COUNTRIES.forEach(c => { stickers[c.code] = { missing: defaultMissing, duplicates:'' }; });
+  if (!saved) return;
+  try {
+    const p = JSON.parse(saved);
+    Object.keys(p).forEach(k => {
+      if (!stickers[k]) return;
+      if (typeof p[k] === 'string') stickers[k] = { missing: p[k], duplicates:'' };
+      else stickers[k] = { missing: p[k].hasOwnProperty('missing') ? p[k].missing : defaultMissing, duplicates: p[k].duplicates||'' };
+    });
+  } catch(e) {}
+}
+
+function saveStickers() {
+  localStorage.setItem('panini_2026_missing_stickers', JSON.stringify(stickers));
+}
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+function flagUrl(iso2) { return `https://flagcdn.com/w40/${iso2}.png`; }
+
+function parseList(str) {
+  if (!str || !str.trim()) return [];
+  return str.split(',').map(x=>x.trim()).filter(x=>x!=='');
+}
+
+function countMissing() { return ALL_COUNTRIES.reduce((s,c)=>s+parseList(stickers[c.code]?.missing).length,0); }
+function countDup() { return ALL_COUNTRIES.reduce((s,c)=>s+parseList(stickers[c.code]?.duplicates).length,0); }
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3200);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => toast('✅ Copié dans le presse-papiers !'))
+      .catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { 
+    document.execCommand('copy'); 
+    toast('✅ Copié dans le presse-papiers !'); 
+  } catch(e) { 
+    toast('❌ Échec de la copie.'); 
+  }
+  document.body.removeChild(ta);
+}
+
+// ═══════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════
+function switchTab(tab) {
+  ['poster','dashboard'].forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t===tab);
+    document.getElementById(`tab-content-${t}`).style.display = t===tab ? '' : 'none';
+  });
+  if (tab === 'dashboard') renderDashboard();
+  if (tab === 'poster') renderPoster();
+}
+
+// ═══════════════════════════════════════════════
+//  STATS
+// ═══════════════════════════════════════════════
+function updateStats() {
+  const m = countMissing(), d = countDup();
+  document.getElementById('stat-missing').textContent = m;
+  document.getElementById('stat-dup').textContent = d;
+  document.getElementById('stat-status').textContent = (m>0&&d>0) ? 'Échanges prêts !' : 'Prêt';
+}
+
+// ═══════════════════════════════════════════════
+//  POSTER
+// ═══════════════════════════════════════════════
+function setPosterMode(mode) {
+  posterMode = mode;
+  ['missing','duplicates','both'].forEach(m => {
+    const btn = document.getElementById(`mode-${m}`);
+    btn.className = 'mode-btn';
+    if (m === mode) btn.classList.add(`active-${mode}`);
+  });
+  renderPoster();
+}
+
+function renderPoster() {
+  const board = document.getElementById('posterBoard');
+  const isMissing = posterMode==='missing', isDup = posterMode==='duplicates', isBoth = posterMode==='both';
+  const boardClass = isDup ? 'poster-board dup' : isBoth ? 'poster-board both' : 'poster-board';
+  const colLabel = isMissing ? 'Manquants' : isDup ? 'Doubles' : 'Manquants / Doubles';
+  const titleText = isMissing ? 'MES STICKERS MANQUANTS' : isDup ? 'MES DOUBLES À ÉCHANGER' : 'MON ÉTAT DES LIEUX PANINI';
+
+  function buildTable(list) {
+    const rows = list.map(c => {
+      const hasMiss = parseList(stickers[c.code]?.missing).length > 0;
+      const hasDup = parseList(stickers[c.code]?.duplicates).length > 0;
+      let cell = '';
+      if (isMissing) {
+        cell = hasMiss
+          ? `<span class="sticker-pill">${stickers[c.code].missing}</span>`
+          : `<span class="complete-text">Complet !</span>`;
+      } else if (isDup) {
+        cell = hasDup
+          ? `<span class="dup-pill">${stickers[c.code].duplicates}</span>`
+          : `<span class="complete-text">—</span>`;
+      } else {
+        let both = '';
+        if (hasMiss) both += `<div class="both-row"><span class="row-label m">M:</span><span class="sticker-pill" style="flex:1">${stickers[c.code].missing}</span></div>`;
+        if (hasDup) both += `<div class="both-row"><span class="row-label d">D:</span><span class="dup-pill" style="flex:1">${stickers[c.code].duplicates}</span></div>`;
+        if (!hasMiss && !hasDup) both = `<span class="complete-text">Complet !</span>`;
+        cell = both;
+      }
+      return `<tr onclick="openEdit('${c.code}')">
+        <td><div class="country-cell">
+          <img class="country-flag" src="${flagUrl(c.iso2)}" alt="${c.code}" crossorigin="anonymous">
+          <span class="country-code">${c.code}</span>
+        </div></td>
+        <td>${cell}</td>
+      </tr>`;
+    }).join('');
+    return `<div class="poster-table-wrap">
+      <table class="poster-table">
+        <thead><tr><th>Pays</th><th>${colLabel}</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+  }
+
+  const today = new Date().toLocaleDateString('fr-FR');
+  board.innerHTML = `
+  <div class="${boardClass}" id="posterContent">
+    <div class="poster-header">
+      <div class="poster-title-block">
+        <div class="poster-trophy">🏆</div>
+        <div>
+          <div class="poster-main-title">${titleText}</div>
+          <div class="poster-subtitle">— COUPE DU MONDE 2026 —</div>
+        </div>
+      </div>
+      <div class="poster-badge">
+        <div>
+          <div class="poster-badge-label">FIFA</div>
+          <div style="font-size:11px;font-weight:900">WORLD CUP</div>
+          <div class="poster-badge-year">2026</div>
+        </div>
+        <div class="poster-divider"></div>
+        <span style="font-size:22px">⚽</span>
+      </div>
+    </div>
+    <div class="poster-grid">
+      ${buildTable(COUNTRIES_LIST_1)}
+      ${buildTable(COUNTRIES_LIST_2)}
+    </div>
+    <div class="poster-footer">
+      <div class="poster-footer-left"><span>🏆</span><div><span>BON COURAGE POUR VOS ÉCHANGES !</span><br><span style="font-size:9px;color:var(--muted)">BIENTÔT TU AURAS TON ALBUM COMPLET !</span></div></div>
+      <div>Panini 2026 Tracker • ${today}</div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════
+//  DASHBOARD
+// ═══════════════════════════════════════════════
+function renderDashboard() {
+  const q = (document.getElementById('searchInput')?.value || '').toLowerCase();
+  const filtered = ALL_COUNTRIES.filter(c => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q));
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = filtered.map(c => {
+    const mList = parseList(stickers[c.code]?.missing);
+    const dList = parseList(stickers[c.code]?.duplicates);
+    const hasData = mList.length>0 || dList.length>0;
+    const missChips = mList.map(n=>`<span class="chip miss">${n}</span>`).join('');
+    const dupChips = dList.map(n=>`<span class="chip dup">${n}</span>`).join('');
+    return `<div class="country-card ${hasData?'has-data':''}">
+      <div class="country-card-header">
+        <img class="card-flag" src="${flagUrl(c.iso2)}" alt="${c.name}">
+        <div>
+          <div class="card-name">${c.name}</div>
+          <div class="card-code">${c.code}</div>
+        </div>
+      </div>
+      <div class="card-stickers">
+        <div class="sticker-section">
+          <span class="sticker-section-label missing">🔴 Manquants (${mList.length})</span>
+          ${mList.length ? `<div class="sticker-chips">${missChips}</div>` : '<div class="empty-text">Aucun manquant</div>'}
+        </div>
+        <div class="sticker-section">
+          <span class="sticker-section-label dup">🟢 Doubles (${dList.length})</span>
+          ${dList.length ? `<div class="sticker-chips">${dupChips}</div>` : '<div class="empty-text">Aucun double</div>'}
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="btn-edit" onclick="openEdit('${c.code}')">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Gérer la liste
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  EDIT MODAL
+// ═══════════════════════════════════════════════
+function openEdit(code) {
+  const c = ALL_COUNTRIES.find(x=>x.code===code);
+  if (!c) return;
+  editingCountry = c;
+  const missingStr = stickers[c.code]?.missing || '';
+  const dupStr = stickers[c.code]?.duplicates || '';
+  tempSlots = Array(STICKERS_N).fill(1);
+
+  parseList(missingStr).forEach(n => {
+    const idx = parseInt(n,10)-1;
+    if (idx>=0 && idx<STICKERS_N) tempSlots[idx] = 0;
+  });
+  parseList(dupStr).forEach(n => {
+    const idx = parseInt(n,10)-1;
+    if (idx>=0 && idx<STICKERS_N) {
+      if (tempSlots[idx]===0) tempSlots[idx]=1;
+      tempSlots[idx]++;
+    }
+  });
+
+  document.getElementById('editModalHeader').style.background = '';
+  document.getElementById('editFlag').src = flagUrl(c.iso2);
+  document.getElementById('editCountryName').textContent = c.name;
+  document.getElementById('editCountryCode').textContent = c.code;
+
+  renderSlots();
+  openModal('editModal');
+}
+
+function renderSlots() {
+  const grid = document.getElementById('slotsGrid');
+  grid.innerHTML = tempSlots.map((qty, idx) => {
+    const cls = qty===0 ? 'slot-btn missing' : qty===1 ? 'slot-btn owned' : 'slot-btn duplicate';
+    const badge = qty>1 ? `<span class="slot-badge">+${qty-1}</span>` : '';
+    return `<button class="${cls}" onclick="slotClick(${idx})" oncontextmenu="slotRightClick(event,${idx})" ontouchstart="startLongPress(event,${idx})" ontouchend="cancelLongPress()" ontouchmove="cancelLongPress()">
+      ${idx+1}${badge}
+    </button>`;
+  }).join('');
+}
+
+let longPressTimer = null;
+function startLongPress(e, idx) {
+  longPressTimer = setTimeout(() => { slotRightClick(e, idx); }, 600);
+}
+function cancelLongPress() { clearTimeout(longPressTimer); }
+
+function slotClick(idx) {
+  tempSlots[idx] = (tempSlots[idx]+1) % 6;
+  renderSlots();
+}
+
+function slotRightClick(e, idx) {
+  if(e && e.preventDefault) e.preventDefault();
+  tempSlots[idx] = tempSlots[idx] > 0 ? tempSlots[idx]-1 : 5;
+  renderSlots();
+}
+
+function setAllSlots(val) {
+  tempSlots = Array(STICKERS_N).fill(val);
+  renderSlots();
+}
+
+function saveCountry() {
+  const missing = [], duplicates = [];
+  tempSlots.forEach((qty,idx) => {
+    if (qty===0) missing.push(idx+1);
+    else if (qty>1) { for (let i=1; i<qty; i++) duplicates.push(idx+1); }
+  });
+  stickers[editingCountry.code] = {
+    missing: missing.join(', '),
+    duplicates: duplicates.join(', ')
+  };
+  saveStickers();
+  closeModal('editModal');
+  updateStats();
+  renderPoster();
+  renderDashboard();
+  toast(`✅ Mis à jour : ${editingCountry.name}`);
+}
+
+// ═══════════════════════════════════════════════
+//  SHARE
+// ═══════════════════════════════════════════════
+function copyFormattedText(type) {
+  let text = '🏆 PANINI COUPE DU MONDE 2026 🏆\n\n';
+  const sep = '----------------------------------------';
+
+  if (type==='missing' || type==='all') {
+    const lines = ALL_COUNTRIES.filter(c=>stickers[c.code]?.missing?.trim()).map(c=>`${c.code} : ${stickers[c.code].missing}`).join('\n');
+    if (lines) text += `🔴 MES MANQUANTS :\n${lines}\n`;
+  }
+  if (type==='duplicates' || type==='all') {
+    const lines = ALL_COUNTRIES.filter(c=>stickers[c.code]?.duplicates?.trim()).map(c=>`${c.code} : ${stickers[c.code].duplicates}`).join('\n');
+    if (lines) {
+      if (type==='all') text += `\n${sep}\n\n`;
+      text += `🟢 MES DOUBLES À ÉCHANGER :\n${lines}\n`;
+    }
+  }
+  text += '\nContacte-moi pour des échanges ! 🔄';
+  copyToClipboard(text);
+  closeModal('shareModal');
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT
+// ═══════════════════════════════════════════════
+function exportJSON() {
+  const slots = {};
+  ALL_COUNTRIES.forEach(c => {
+    const arr = Array(STICKERS_N).fill(1);
+    parseList(stickers[c.code]?.missing).forEach(n => {
+      const i=parseInt(n,10)-1; if(i>=0&&i<STICKERS_N) arr[i]=0;
+    });
+    parseList(stickers[c.code]?.duplicates).forEach(n => {
+      const i=parseInt(n,10)-1;
+      if(i>=0&&i<STICKERS_N) { if(arr[i]===0) arr[i]=1; arr[i]++; }
+    });
+    slots[c.code] = arr;
+  });
+  const blob = new Blob([JSON.stringify({slots},null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'panini-tracker-sauvegarde.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+  toast('💾 Sauvegarde JSON téléchargée !');
+  closeModal('exportModal');
+}
+
+async function exportImage() {
+  const btn = document.getElementById('btnExportImg');
+  const icon = document.getElementById('exportImgIcon');
+  btn.disabled = true;
+  icon.innerHTML = '<span class="spinner"></span>';
+
+  switchTab('poster');
+  await new Promise(r=>setTimeout(r,400));
+
+  try {
+    if (!window.html2canvas) throw new Error('html2canvas non chargé');
+    const el = document.getElementById('posterContent');
+    const canvas = await html2canvas(el, {
+      useCORS:true, allowTaint:true, scale:2,
+      backgroundColor:'#04091c', logging:false
+    });
+    const a = document.createElement('a');
+    a.download = `mes-stickers-panini-${posterMode}.png`;
+    a.href = canvas.toDataURL('image/png',1.0);
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    toast('🖼 Image générée ! Regardez vos téléchargements.');
+    closeModal('exportModal');
+  } catch(e) {
+    toast('❌ Erreur lors de la création de l\'image.');
+  } finally {
+    btn.disabled = false;
+    icon.textContent = '🖼';
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  BULK IMPORT
+// ═══════════════════════════════════════════════
+function handleFileUpload(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    document.getElementById('bulkTextarea').value = ev.target.result;
+    onBulkTextInput();
+  };
+  reader.readAsText(file);
+}
+
+function onBulkTextInput() {
+  const val = document.getElementById('bulkTextarea').value.trim();
+  const isJSON = val.startsWith('{');
+  document.getElementById('bulkTypeSwitcher').style.display = isJSON ? 'none' : '';
+  document.getElementById('jsonDetected').style.display = isJSON ? '' : 'none';
+  document.getElementById('bulkError').style.display = 'none';
+}
+
+function setBulkType(type) {
+  bulkImportType = type;
+  document.getElementById('btab-missing').className = `bulk-tab ${type==='missing'?'miss-active':''}`;
+  document.getElementById('btab-owned').className = `bulk-tab ${type==='owned'?'owned-active':''}`;
+  document.getElementById('btab-duplicates').className = `bulk-tab ${type==='duplicates'?'dup-active':''}`;
+}
+
+function showBulkError(msg) {
+  const el = document.getElementById('bulkError');
+  el.style.display = ''; el.textContent = msg;
+}
+
+function handleBulkImport() {
+  const text = document.getElementById('bulkTextarea').value.trim();
+  if (!text) { showBulkError('Veuillez coller du texte ou charger un fichier.'); return; }
+
+  const defaultMissing = Array.from({length: STICKERS_N}, (_, i) => i + 1).join(', ');
+
+  // Essai de lecture du format JSON
+  try {
+    const parsed = JSON.parse(text);
+    if (parsed?.slots) {
+      let count = 0;
+      let totalMissing = 0;
+      let totalDups = 0;
+      
+      Object.entries(parsed.slots).forEach(([code, arr]) => {
+        if (!ALL_COUNTRIES.some(c=>c.code===code)) return;
+        if (!Array.isArray(arr)) return;
+        const missing=[], dups=[];
+        arr.forEach((qty,idx)=>{
+          const n=idx+1;
+          if(qty===0) { missing.push(n); totalMissing++; }
+          if(qty>1) { 
+            for(let i=1;i<qty;i++) dups.push(n); 
+            totalDups += (qty-1);
+          }
+        });
+        stickers[code] = { missing:missing.join(', '), duplicates:dups.join(', ') };
+        count++;
+      });
+      
+      if (count>0) {
+        // CORRECTION DU BUG "ALBUM COMPLET" :
+        // Si l'ancien fichier JSON importé a 0 manquant et 0 double sur tout l'album,
+        // c'est l'ancien format d'un album VIDE. On l'auto-corrige !
+        if (totalMissing === 0 && totalDups === 0) {
+          ALL_COUNTRIES.forEach(c => { stickers[c.code] = { missing: defaultMissing, duplicates:'' }; });
+          toast('✅ Fichier corrigé : Album vide restauré !');
+        } else {
+          toast(`✅ JSON importé ! ${count} pays mis à jour.`);
+        }
+        
+        saveStickers(); updateStats(); renderPoster(); renderDashboard();
+        closeModal('bulkModal'); document.getElementById('bulkTextarea').value='';
+        return;
+      }
+      showBulkError('Aucun pays reconnu dans ce fichier JSON.'); return;
+    }
+  } catch(e) {}
+
+  // Lecture et traitement du format texte brut ultra-souple
+  const lines = text.split('\n');
+  let count=0;
+  lines.forEach(line=>{
+    if(!line.trim()) return;
+    
+    let matchedCode = null;
+    let numsRaw = '';
+    
+    // Recherche de l'indicatif pays même sans virgules/points (Ex: "FRA 1 2 3")
+    for (const c of ALL_COUNTRIES) {
+      const regex = new RegExp(`(?:^|\\s)(${c.code})[^0-9]*([0-9\\s,]+)`, 'i');
+      const m = line.match(regex);
+      if (m) {
+        matchedCode = c.code;
+        numsRaw = m[2];
+        break;
+      }
+    }
+    
+    if (!matchedCode) return;
+    
+    // Extraction propre des numéros
+    const nums = numsRaw.replace(/[^\d]+/g, ' ').trim().split(' ')
+      .map(n=>parseInt(n,10))
+      .filter(n=>n>=1 && n<=STICKERS_N);
+      
+    const uniqueNums = [...new Set(nums)].sort((a,b)=>a-b);
+    const cleanedStr = uniqueNums.join(', ');
+
+    if (bulkImportType==='missing') {
+      stickers[matchedCode].missing = cleanedStr;
+    } else if (bulkImportType==='duplicates') {
+      // Garde les doubles multiples (donc sans le 'Set')
+      stickers[matchedCode].duplicates = nums.sort((a,b)=>a-b).join(', ');
+    } else if (bulkImportType==='owned') {
+      // Nouvel onglet : Déduire les manquants à partir de la liste des possédés !
+      const missingArr = [];
+      for(let i=1; i<=STICKERS_N; i++) {
+        if(!uniqueNums.includes(i)) missingArr.push(i);
+      }
+      stickers[matchedCode].missing = missingArr.join(', ');
+    }
+    count++;
+  });
+
+  if (count>0) {
+    saveStickers(); updateStats(); renderPoster(); renderDashboard();
+    closeModal('bulkModal'); document.getElementById('bulkTextarea').value='';
+    toast(`✅ Importé ! ${count} pays mis à jour.`);
+  } else {
+    showBulkError('Format non reconnu. Ex: FRA: 1, 2, 3 ou BEL 4 5 6');
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  RESET
+// ═══════════════════════════════════════════════
+function confirmReset() {
+  const defaultMissing = Array.from({length: STICKERS_N}, (_, i) => i + 1).join(', ');
+  ALL_COUNTRIES.forEach(c => { stickers[c.code] = { missing: defaultMissing, duplicates:'' }; });
+  saveStickers(); updateStats(); renderPoster(); renderDashboard();
+  closeModal('resetModal');
+  toast('🗑 Toutes les données ont été réinitialisées !');
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  initStickers();
+  updateStats();
+  renderPoster();
+  renderDashboard();
+});
+</script>
+</body>
+</html>
